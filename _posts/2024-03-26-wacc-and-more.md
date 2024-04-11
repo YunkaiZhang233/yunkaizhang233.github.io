@@ -17,13 +17,13 @@ redirect_from:
 
 **WACC** (officially pronounced "whack") is a simple variant of the While-like language family
 that appeared in a series of courses on program reasoning and verification at Imperial.
-The WACC Compiler project is one of the major group projects for the second year younglings in computing to overcome, and I am glad to say that we survived it with lots of fun and learning a lot. 
+The WACC Compiler project is one of the major group projects for the second year younglings in computing to overcome, and I am glad to say that we survived it with lots of fun and learning a lot.
 
 (FYI: I was credited as one of the bug hunters for the reference compiler script!)
 
-During development and after finishing the project, I came up with some super cool ideas, which I would be discussing later in this post and (hopefully!) eventually implement in this summer.
+During development and after finishing the project, I came up with some super cool ideas, which I would be discussing later in this post and (hopefully!) get to implement this summer.
 
-If you are not familiar with it, the task is to write a compiler for the _WACC Language_ manually (i.e. craft the scenes from the middle game, such as Abstract Syntax Tree and Intermediate Representation all on ourselves) with several internal milestones.
+If you are not familiar with it, the task is to write a compiler for the _WACC Language_ manually (i.e. craft the scenes from the middle game, such as Abstract Syntax Tree and Intermediate Representation all on ourselves, **integrated toolchains like LLVM are explicitly banned for the coursework**) with several internal milestones.
 
 The development was splitted into three stages:
 
@@ -36,9 +36,11 @@ and two weeks at the end of the term for the extensions.
 
 We were given the freedom to choose a language on our own for development, and compile the source code to one of the three specified assembly languages (`x86-64`, `aarch64 (armv8-a)`, and `arm32 (armv6)`). We chose `Rust` (trust me it's really worth a try) for development and `x86-64` for backend output. For the extensions part, our group have implemented numerous local-scale optimisations, and a type inference system, incrementally developed from a limited local scale to globally effective under a monomorphic context to strengthen WACC's type system.
 
-These choices were indeed helpful and thought-provoking. And after the whole project, I'm now planning to build a WACC Compiler in `OCaml`, using the more modern choice of `LLVM` as its IR and actually implementing ~~LOTS OF~~ some possible extensions that we sadly have no time to complete during term time (including but not limited to full Control Flow Graph control, graph colouring based register allocation, cross-compiler support, and garbage collection).
+These choices were indeed helpful and thought-provoking. And after the whole project, I'm now planning to build a WACC Compiler in `OCaml`, using the more modern choice of `LLVM` (well, I learnt the compiler principles now and I guess we shall go modern :P) as its IR and actually implementing ~~LOTS OF~~ some possible extensions that we sadly have no time to complete during term time (including but not limited to full **Control Flow Graph** control, graph colouring based **register allocation**, **cross-compiler support**, and **garbage collection**).
 
 ## What exactly have we DONE?
+
+Due to internal restrictions, the source code repository of this coursework is not to be published online, therefore we will kept this post at the discussion level.
 
 We were given a detailed (16 pages) specification of the syntax and semantics of the language, some relative definitions, and some other related references. Its syntax was mainly described in Backus-Naur Form (BNF) notation, whilst its semantics were grounded by sets of rules and behaviour restrictions.
 
@@ -167,4 +169,15 @@ begin
 end
 ```
 
+Generally speaking, our design follows the general principles of crafting a compiler
+and you can find our final report for the project [here](/files/wacc/wacc-report.pdf).
+
+Here is the simplified version of our final flowchart:
+
+![final-flowchart](/files/wacc/flowchart.jpg)
+
+To be continued...
+
 ## What am I GOING TO DO/IMPROVE?
+
+To be continued...
