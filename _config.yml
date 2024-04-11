@@ -23,7 +23,7 @@ author:
   # Biographic information
   avatar           : "profile.jpg"
   name             : "Yunkai Zhang"
-  pronouns         : "she/her" 
+  pronouns         : # "she/her" 
   bio              : "2nd Year Computer Science Undergraduate"
   location         : "London"
   employer         : "Imperial College London"
