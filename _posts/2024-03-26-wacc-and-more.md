@@ -6,11 +6,13 @@ tags:
   - compiler
   - coursework
   - Imperial
+  - WACC
   - plan
   - functional programming
   - Rust
   - OCaml
   - LLVM
+  - in progress
 redirect_from: 
   - /posts/wacc
 ---
@@ -34,13 +36,13 @@ The development was splitted into three stages:
 We got three weeks (along with other courses and tasks going on - it's really a busy year) on the previous two stages
 and two weeks at the end of the term for the extensions.
 
-We were given the freedom to choose a language on our own for development, and compile the source code to one of the three specified assembly languages (`x86-64`, `aarch64 (armv8-a)`, and `arm32 (armv6)`). We chose `Rust` (trust me it's really worth a try) for development and `x86-64` for backend output. For the extensions part, our group have implemented numerous local-scale optimisations, and a type inference system, incrementally developed from a limited local scale to globally effective under a monomorphic context to strengthen WACC's type system.
+We were given the freedom to choose a language on our own for development, and compile the source code to one of the three specified assembly languages (`x86-64`, `aarch64 (armv8-a)`, and `arm32 (armv6)`). We chose `Rust` (trust me it's really worth a try) for development, used the **hand-written style recursive descent parsers** and crafted the parsing logic ourselves instead of implementing and using `ANTLR` and other relative parser generator tools, and chose the `AT&T dialect of x86-64` for backend output.  I will discuss some of our designing considerations below. For the extensions part, our group have implemented numerous local-scale optimisations, and a type inference system, incrementally developed from a limited local scale to globally effective under a monomorphic context to strengthen WACC's type system.
 
-These choices were indeed helpful and thought-provoking. And after the whole project, I'm now planning to build a WACC Compiler in `OCaml`, using the more modern choice of `LLVM` (well, I learnt the compiler principles now and I guess we shall go modern :P) as its IR and actually implementing ~~LOTS OF~~ some possible extensions that we sadly have no time to complete during term time (including but not limited to full **Control Flow Graph** control, graph colouring based **register allocation**, **cross-compiler support**, and **garbage collection**).
+These choices were indeed helpful and thought-provoking. And after the whole project, I'm now planning to build a WACC Compiler in `OCaml`, using the more modern choice of `LLVM` (well, I learnt the compiler principles now and I guess we shall go modern :P) as its IR and actually implementing ~~LOTS OF~~ some possible extensions that we sadly have no time to complete during term time (including but not limited to graph colouring based **register allocation**, **cross-compiler support**, and **garbage collection**).
 
-## What exactly have we DONE?
+## Designs Explained
 
-Due to internal restrictions, the source code repository of this coursework is not to be published online, therefore we will kept this post at the discussion level.
+Due to internal restrictions, the source code repository of this coursework is not to be published online, therefore we will kept this post at the discussion level. However you can check out the testsuite we developed based on the skeleton examples [here](https://github.com/YunkaiZhang233/wacc-testing-examples).
 
 We were given a detailed (16 pages) specification of the syntax and semantics of the language, some relative definitions, and some other related references. Its syntax was mainly described in Backus-Naur Form (BNF) notation, whilst its semantics were grounded by sets of rules and behaviour restrictions.
 
@@ -176,8 +178,30 @@ Here is the simplified version of our final flowchart:
 
 ![final-flowchart](/files/wacc/flowchart.jpg)
 
+### Parsers: Recursive Descent and write by hand
+
+There are two mainstream approaches for crafting our parsers: parser combinators and parser generators, both of which are widely used in production. Popular parser generator libraries include `ANTLR`.
+
+Both of the approaches were available in Rust and have relevant libraries.
+
+- For parser combinators: `nom` (more of general usage but could be used for parser combinators), `winnow`, `Chumsky`, and lots of other crates.
+- For parser generators: `lalrpop` and `pest`.
+
+We eventually decided to implement parser combinator approach. Our superherb year coordinator Jamie has written an article on parser combinator design patterns on [Design Patterns for Parser Combinators (Functional Pearl)](https://dl.acm.org/doi/10.1145/3471874.3472984) which greatly inspired us for designing our own parsing framework.
+
+[TODO] Why Parser Combinators over Parser Generators?
+
 To be continued...
 
-## What am I GOING TO DO/IMPROVE?
+### Compiler Backend
+
+[TODO]
+
+Our current coursework-level design used the stack machine method for register allocation, which is feasible and correct but not the best solution for register allocation, as this approach generally consumes more runtime stack space and is not utilising the full availability of the registers. This might introduce some overheads and 
+
+## What am I GOING TO IMPLEMENT/IMPROVE?
 
 To be continued...
+
+## References
+
