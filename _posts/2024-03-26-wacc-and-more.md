@@ -42,13 +42,13 @@ These choices were indeed helpful and thought-provoking. And after the whole pro
 
 ## Designs Explained
 
-Due to internal restrictions, the source code repository of this coursework is not to be published online, therefore we will kept this post at the discussion level. However you can check out the testsuite we developed based on the skeleton examples [here](https://github.com/YunkaiZhang233/wacc-testing-examples).
+Due to internal restrictions, the source code repository of this coursework is not to be published online, therefore we will kept this post at the discussion level. However you can check out the testsuite we developed based on the skeleton examples [here](https://github.com/YunkaiZhang233/wacc-testing-examples), including the additional tests we made for the references.
 
 We were given a detailed (16 pages) specification of the syntax and semantics of the language, some relative definitions, and some other related references. Its syntax was mainly described in Backus-Naur Form (BNF) notation, whilst its semantics were grounded by sets of rules and behaviour restrictions.
 
 To quickly get a rough feeling of how this language is like, here is a sample program from the given set of example programs, illustrating an implementation of simulating fixed point arithmetics:
 
-```
+```text
 # This program implements floating-point type using integers.
 # The details about how it is done can found here:
 # http://www.cse.iitd.ernet.in/~sbansal/csl373/pintos/doc/pintos_7.html#SEC135
@@ -187,9 +187,19 @@ Both of the approaches were available in Rust and have relevant libraries.
 - For parser combinators: `nom` (more of general usage but could be used for parser combinators), `winnow`, `Chumsky`, and lots of other crates.
 - For parser generators: `lalrpop` and `pest`.
 
-We eventually decided to implement parser combinator approach. Our superherb year coordinator Jamie has written an article on parser combinator design patterns on [Design Patterns for Parser Combinators (Functional Pearl)](https://dl.acm.org/doi/10.1145/3471874.3472984) which greatly inspired us for designing our own parsing framework.
+We eventually decided to implement parser combinator approach. Our superherb year coordinator Jamie has written an article on parser combinator design patterns on his paper[1] which greatly inspired us for designing our own parsing framework.
 
-[TODO] Why Parser Combinators over Parser Generators?
+**Why Parser Combinators over Parser Generators?**
+
+> Parser combinators are a viable means of writing efficient and maintainable parsers with good error messages.[2]
+
+Our intuitions:
+
+1. Parser Combinators works well with functional programming paradigms (which we really try to practice)
+2. Although parser combinators may introduce some ambiguity, they are really flexible and extensible. Missing functions and additional features can be easily incremented (instead of crafting the whole design!)
+3. The behaviour of parser combinators are much more transparent, compared to geneartors.
+
+There has been a long discussion around whether to use parser combinators or generators and it is indeed an interesting topic. This project is mainly for education purposes and we are not intending to argue that we've picked THE approach to parser construction. In fact, I would be trying out the Parser Generator approach in the `OCaml` version of the project!
 
 To be continued...
 
@@ -197,7 +207,7 @@ To be continued...
 
 [TODO]
 
-Our current coursework-level design used the stack machine method for register allocation, which is feasible and correct but not the best solution for register allocation, as this approach generally consumes more runtime stack space and is not utilising the full availability of the registers. This might introduce some overheads and 
+Our current coursework-level design used the stack machine method for register allocation, which is feasible and correct but not the best solution for register allocation, as this approach generally consumes more runtime stack space and is not utilising the full availability of the registers. This might introduce some overheads and
 
 ## What am I GOING TO IMPLEMENT/IMPROVE?
 
@@ -205,3 +215,6 @@ To be continued...
 
 ## References
 
+[1] Willis, J., & Wu, N. (2021, August). Design patterns for parser combinators (functional pearl). In Proceedings of the 14th ACM SIGPLAN International Symposium on Haskell (pp. 71-84). <https://doi.org/10.1145/3471874.3472984>
+
+[2] Willis, J. (2023). Parsley: optimising and improving parser combinators. Imperial College London. <https://doi.org/10.25560/110313>
