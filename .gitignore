@@ -10,3 +10,6 @@ package-lock.json
 
 # Ignore macOS system .DS_Store Files
 .DS_Store
+
+# Ignore ruby fix notes
+fixguide.md
