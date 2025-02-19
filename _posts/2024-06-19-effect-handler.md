@@ -53,7 +53,7 @@ Effect handlers allow us to **define and use computational effects** in a flexib
 
 ## Understanding Algebraic Effects via Examples
 
-These examples were taken and altered from Sam Lindley and Ningning Xie's talk [2][3].
+These examples were taken and altered from Sam Lindley and Ningning Xie's talk [2] [3].
 
 ### Algebraic Effects & Effect Types
 
