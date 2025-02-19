@@ -11,9 +11,9 @@ This webpage is still under construction at the moment and please forgive me for
 
 ## About Me
 
-I am currently a 2nd year undergraduate student studying Computing (_equiv_ Computer Science) at Imperial College London, expected to graduate in 2026.
+I am currently a 3nd year undergraduate student studying Computing (_equiv_ Computer Science) at Imperial College London, expected to graduate in 2026.
 
-My current interest mainly lies within **Programming Languages, Formal Verification** and their relevant applications in Language Design, Computer Systems and Software Engineering.
+My current interest mainly lies within **Programming Language Theory, Category Theory, Formal Verification**, and other relevant topics. I'm also interested in their practical implementations and their interplays with other topics, such as formal verification for smart constracts, and bridges between computer science and mathematics.
 
 Outside of working stuff I love to do a bit of philosophical and psychological discussions, VR gaming, lightweight trailing, enjoying theatrical arts (particularly musicals), as well asresearching and discovering public transport and rail systems (in particular Transport of London). I'm proudly a member of Imperial RailSoc.
 
