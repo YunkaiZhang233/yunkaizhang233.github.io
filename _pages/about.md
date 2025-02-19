@@ -15,6 +15,8 @@ I am currently a 3nd year undergraduate student studying Computing (_equiv_ Comp
 
 My current interest mainly lies within **Programming Language Theory, Category Theory, Formal Verification**, and other relevant topics. I'm also interested in their practical implementations and their interplays with other topics, such as formal verification for smart constracts, and bridges between computer science and mathematics.
 
+In earlier times, I enjoy competitive programming and have participated in Olympics in Informatics and ACM. I also held peer seminars on algorithms and data structures during high school.
+
 Outside of working stuff I love to do a bit of philosophical and psychological discussions, VR gaming, lightweight trailing, enjoying theatrical arts (particularly musicals), as well asresearching and discovering public transport and rail systems (in particular Transport of London). I'm proudly a member of Imperial RailSoc.
 
 
