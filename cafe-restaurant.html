@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A Map of My London — in cafes &amp; restaurants</title>
+<style>
+  :root{
+    --paper:#faf6ee; --ink:#2c2723; --muted:#8a8073; --line:#e3dac9;
+    --accent:#c0392b; --accent-soft:#f0d9d5; --chip:#efe7d8; --blue:#22356f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,
+      "Songti SC","STSong",serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px;margin:0 auto;padding:48px 24px 96px;}
+  header.masthead{text-align:center;margin-bottom:8px;}
+  .kicker{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    letter-spacing:.28em;text-transform:uppercase;font-size:11px;color:var(--muted);margin-bottom:14px;}
+  h1{font-size:clamp(30px,5vw,46px);margin:0 0 10px;font-weight:600;line-height:1.1;}
+  .blurb{max-width:62ch;margin:0 auto;color:#574f45;font-size:17px;}
+  .stats{margin:22px auto 0;display:flex;gap:26px;justify-content:center;flex-wrap:wrap;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12.5px;color:var(--muted);letter-spacing:.04em;}
+  .stats b{color:var(--accent);font-size:15px;}
+  .legend{margin:18px auto 0;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
+    font-size:12.5px;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .swatch{width:22px;height:14px;border-radius:4px;border:1px solid var(--line);background:#fff;}
+  .swatch.closed{opacity:.5;}
+  .legend .pill{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:10px;color:var(--muted);
+    border:1px solid var(--line);border-radius:5px;padding:2px 6px;}
+
+  .controls{position:sticky;top:0;z-index:20;margin:30px 0 8px;
+    background:rgba(250,246,238,.93);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;}
+  .searchrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .search{flex:1 1 280px;min-width:220px;display:flex;align-items:center;gap:8px;background:#fff;
+    border:1px solid var(--line);border-radius:999px;padding:9px 16px;}
+  .search input{border:0;outline:0;background:transparent;font-size:15px;width:100%;font-family:inherit;color:var(--ink);}
+  .search svg{flex:none;opacity:.5;}
+  .btn{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11.5px;letter-spacing:.06em;
+    text-transform:uppercase;cursor:pointer;background:#fff;border:1px solid var(--line);
+    border-radius:999px;padding:9px 14px;color:#5f5749;white-space:nowrap;}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .chips{margin-top:12px;display:flex;gap:7px;flex-wrap:wrap;}
+  .chip{cursor:pointer;user-select:none;font-size:13px;background:var(--chip);
+    border:1px solid transparent;border-radius:999px;padding:5px 12px;color:#5b5345;transition:.12s;}
+  .chip:hover{border-color:var(--muted);}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .chip .c{opacity:.6;font-size:11px;margin-left:5px;}
+  .chip.on .c{opacity:.85;}
+
+  .station{border-bottom:1px solid var(--line);padding:6px 0;}
+  .shead{display:flex;align-items:center;gap:14px;cursor:pointer;padding:16px 4px;user-select:none;}
+  .roundel{flex:none;width:24px;height:24px;}
+  .sname{font-size:21px;font-weight:600;}
+  .scount{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;color:var(--muted);margin-left:auto;}
+  .chev{transition:transform .18s;color:var(--muted);flex:none;}
+  .station.collapsed .chev{transform:rotate(-90deg);}
+  .station.collapsed .grid{display:none;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;padding:4px 0 22px;}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;
+    display:flex;flex-direction:column;gap:7px;}
+  .card.closed{opacity:.55;}
+  .cname{font-size:16px;line-height:1.25;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .ctype{align-self:flex-start;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:10.5px;
+    letter-spacing:.05em;text-transform:uppercase;color:#7a4039;background:var(--accent-soft);
+    border-radius:6px;padding:3px 8px;}
+  .closedtag{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:9.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:#6d6457;border:1px solid var(--line);border-radius:5px;padding:2px 6px;}
+  .xnote{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:10.5px;color:var(--muted);letter-spacing:.03em;}
+  .locs{display:flex;flex-wrap:wrap;gap:5px;}
+  .loc{font-size:11px;color:#6a6253;background:var(--chip);border-radius:6px;padding:2px 7px;}
+  .loc.hit{background:#ffe8a3;color:#5a4a16;}
+  mark{background:#ffe8a3;color:inherit;border-radius:2px;padding:0 1px;}
+
+  .empty{text-align:center;color:var(--muted);padding:60px 0;font-size:17px;display:none;}
+  footer{text-align:center;margin-top:60px;color:var(--muted);font-size:13px;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.04em;}
+  @media (max-width:560px){.stats{gap:16px;}.sname{font-size:18px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="kicker">Thesis Acknowledgements &middot; Anecdotes</div>
+    <h1>A Map of My London</h1>
+    <p class="blurb">The cafes and restaurants that anchored my London years &mdash; every
+       counter I returned to and every table that quietly held a chapter together. Search a
+       name (English or &#20013;&#25991;) or a tube station, filter by cuisine, or wander
+       station by station. The regulars I found all over town sit under every station they
+       reach, each noting where else it can be found.</p>
+    <div class="stats">
+      <span><b id="st-places">0</b> places</span>
+      <span><b id="st-stations">0</b> stations on the map</span>
+      <span><b id="st-cuisines">0</b> cuisines</span>
+    </div>
+    <div class="legend">
+      <span><i class="swatch closed"></i> now closed</span>
+      <span><i class="pill">also at N other stations</i> &nbsp;has branches elsewhere too</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="searchrow">
+      <label class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="q" type="search" placeholder="Search a place, cuisine, or station&hellip;" autocomplete="off" />
+      </label>
+      <button class="btn" id="toggleAll">Collapse all</button>
+      <button class="btn" id="clear">Reset</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="list"></div>
+  <div class="empty" id="empty">No tables here &mdash; try another search.</div>
+  <footer>Made with love, one flat white at a time.</footer>
+</div>
+
+<script>
+const DATA = [{"n": "遇见云南 Cloud Land", "t": "Chinese", "s": "Aldgate", "l": [], "c": false}, {"n": "肖爷牛肉面 Yeye Noodles", "t": "Chinese", "s": "Aldgate East", "l": [], "c": false}, {"n": "Lucky Dog", "t": "Chinese", "s": "Aldgate East", "l": [], "c": false}, {"n": "Hotto Potto", "t": "Chinese", "s": "Aldgate East", "l": [], "c": false}, {"n": "Sushinoen", "t": "Japanese", "s": "Aldgate East", "l": [], "c": false}, {"n": "Efes Restaurant", "t": "Turkish", "s": "Aldgate East", "l": [], "c": false}, {"n": "Som Saa", "t": "Thai", "s": "Aldgate East", "l": [], "c": false}, {"n": "Rice Brother", "t": "Chinese", "s": "Aldgate East", "l": [], "c": false}, {"n": "Kasute 100", "t": "Dessert", "s": "Angel", "l": [], "c": false}, {"n": "Special Guests", "t": "Cafe", "s": "Baker Street", "l": [], "c": false}, {"n": "煌庭 Bright Courtyard", "t": "Chinese", "s": "Baker Street", "l": [], "c": false}, {"n": "The Ned", "t": "Buffet", "s": "Bank", "l": [], "c": false}, {"n": "Ibai", "t": "Steak", "s": "Barbican", "l": [], "c": false}, {"n": "Fluffy Fluffy Bayswater", "t": "Dessert", "s": "Bayswater", "l": [], "c": false}, {"n": "Med Salleh Kopitiam", "t": "Malaysian", "s": "Bayswater", "l": [], "c": false}, {"n": "味缘 Crystal China", "t": "Chinese", "s": "Bermondsey", "l": [], "c": false}, {"n": "Shugetsu Ramen & Tsukumen", "t": "Japanese", "s": "Blackfriars", "l": [], "c": false}, {"n": "Sunday in Brooklyn", "t": "American", "s": "Bond Street", "l": [], "c": false}, {"n": "Nicolas Rouzaud at The Connaught", "t": "Dessert", "s": "Bond Street", "l": [], "c": false}, {"n": "Ikeda", "t": "Japanese", "s": "Bond Street", "l": [], "c": false}, {"n": "Chisou Mayfair", "t": "Japanese", "s": "Bond Street", "l": [], "c": false}, {"n": "Assembly", "t": "Cafe", "s": "Brixton", "l": [], "c": false}, {"n": "Okan Brixton", "t": "Japanese", "s": "Brixton", "l": [], "c": false}, {"n": "Koya City", "t": "Japanese", "s": "Cannon Street", "l": [], "c": false}, {"n": "Prufrock", "t": "Cafe", "s": "Chancery Lane", "l": [], "c": false}, {"n": "八大碗 Big Bowl", "t": "Chinese", "s": "Chancery Lane", "l": [], "c": false}, {"n": "Love Dumplings’ Legend", "t": "Chinese", "s": "Chancery Lane", "l": [], "c": false}, {"n": "唐舍 Gouqi", "t": "Chinese", "s": "Charing Cross", "l": [], "c": false}, {"n": "The Midyeci Bar & Restaurant", "t": "Turkish", "s": "Dalston Junction", "l": [], "c": false}, {"n": "Sodaeng", "t": "Korean", "s": "East Putney", "l": [], "c": false}, {"n": "Satay House", "t": "Malaysian", "s": "Edgware Road", "l": [], "c": false}, {"n": "浙里 Cheli", "t": "Chinese", "s": "Elephant & Castle", "l": [], "c": false}, {"n": "Kineya Mugimaru", "t": "Japanese", "s": "Embankment", "l": [], "c": false}, {"n": "富丽 Fuli", "t": "Chinese", "s": "Euston", "l": [], "c": false}, {"n": "花间一串 Lily’s Dumpling", "t": "Chinese", "s": "Farringdon", "l": [], "c": false}, {"n": "The Quality Chop House", "t": "Steak", "s": "Farringdon", "l": [], "c": false}, {"n": "Lanka", "t": "Dessert", "s": "Finchley Road", "l": [], "c": false}, {"n": "The Chelsea Corner", "t": "Italian", "s": "Gloucester Road", "l": [], "c": false}, {"n": "Da Mario", "t": "Italian", "s": "Gloucester Road", "l": [], "c": false}, {"n": "Yashin Ocean House", "t": "Japanese", "s": "Gloucester Road", "l": [], "c": false}, {"n": "Bugis Street", "t": "Singaporean", "s": "Gloucester Road", "l": [], "c": false}, {"n": "Cafe Japan", "t": "Japanese", "s": "Golders Green", "l": [], "c": false}, {"n": "Kazu", "t": "Japanese", "s": "Goodge Street", "l": [], "c": false}, {"n": "Hanasaki", "t": "Japanese", "s": "Goodge Street", "l": [], "c": false}, {"n": "Le Cafe by Nicolas Rouzaud", "t": "Dessert", "s": "Green Park", "l": [], "c": false}, {"n": "Hide", "t": "European", "s": "Green Park", "l": [], "c": false}, {"n": "Ginza St James’s", "t": "Japanese", "s": "Green Park", "l": [], "c": false}, {"n": "食为天 Food Sky", "t": "Chinese", "s": "Greenwich", "l": [], "c": false}, {"n": "Koya Hackney", "t": "Japanese", "s": "Haggerston", "l": [], "c": false}, {"n": "岷江 Min Jiang", "t": "Chinese", "s": "High Street Kensington", "l": [], "c": false}, {"n": "蜀姐 Shujie", "t": "Chinese", "s": "Holborn", "l": [], "c": false}, {"n": "王贵仁麻辣烫 Mr Wong", "t": "Chinese", "s": "Holborn", "l": [], "c": false}, {"n": "HUS London", "t": "Chinese", "s": "Holborn", "l": [], "c": false}, {"n": "Cedric Grolet", "t": "Dessert", "s": "Hyde Park Corner", "l": [], "c": false}, {"n": "KillBean", "t": "Cafe", "s": "Kilburn", "l": [], "c": false}, {"n": "Signor Sassi", "t": "Italian", "s": "Knightsbridge", "l": [], "c": false}, {"n": "Sale e Pepe", "t": "Italian", "s": "Knightsbridge", "l": [], "c": false}, {"n": "Osteria Romana", "t": "Italian", "s": "Knightsbridge", "l": [], "c": false}, {"n": "Chisou Knightsbridge", "t": "Japanese", "s": "Knightsbridge", "l": [], "c": false}, {"n": "Coffee Island", "t": "Cafe", "s": "Leicester Square", "l": [], "c": false}, {"n": "文兴酒家 Four Seasons", "t": "Chinese", "s": "Leicester Square", "l": [], "c": false}, {"n": "包租婆 Mrs Bakery", "t": "Dessert", "s": "Leicester Square", "l": [], "c": false}, {"n": "Koya Soho", "t": "Japanese", "s": "Leicester Square", "l": [], "c": false}, {"n": "Fazenda", "t": "Brazilian", "s": "Liverpool Street", "l": [], "c": false}, {"n": "金味德 JWD", "t": "Chinese", "s": "Liverpool Street", "l": [], "c": false}, {"n": "唐茶苑 Yauatcha City", "t": "Chinese", "s": "Liverpool Street", "l": [], "c": false}, {"n": "Fen Noodles", "t": "Chinese", "s": "Liverpool Street", "l": [], "c": false}, {"n": "Chew Fun", "t": "Chinese", "s": "Liverpool Street", "l": [], "c": false}, {"n": "Duck & Waffle", "t": "European", "s": "Liverpool Street", "l": [], "c": false}, {"n": "Gelateria 3bis Borough Market", "t": "Dessert", "s": "London Bridge", "l": [], "c": false}, {"n": "Khanom Krok", "t": "Thai", "s": "London Bridge", "l": [], "c": false}, {"n": "The Wren Coffee", "t": "Cafe", "s": "Mansion House", "l": [], "c": false}, {"n": "小东方 Red Sun", "t": "Chinese", "s": "Marble Arch", "l": [], "c": false}, {"n": "Hideaway London", "t": "European", "s": "Marble Arch", "l": [], "c": false}, {"n": "金外滩 The Golden Bund", "t": "Chinese", "s": "Marylebone", "l": [], "c": false}, {"n": "Cake & Bingsoo Cafe", "t": "Dessert", "s": "New Malden", "l": [], "c": false}, {"n": "Treestone BBQ", "t": "Korean", "s": "New Malden", "l": [], "c": false}, {"n": "Imone", "t": "Korean", "s": "New Malden", "l": [], "c": false}, {"n": "Rodizio Rico", "t": "Brazilian", "s": "North Greenwich", "l": [], "c": false}, {"n": "Jimmy’s O2", "t": "Buffet", "s": "North Greenwich", "l": [], "c": false}, {"n": "Saikei Chinese Restaurant", "t": "Chinese", "s": "North Greenwich", "l": [], "c": false}, {"n": "EatFan Greenwich Peninsula", "t": "Chinese & Japanese", "s": "North Greenwich", "l": [], "c": false}, {"n": "Bullgogi Notting Hill", "t": "Korean", "s": "Notting Hill Gate", "l": [], "c": false}, {"n": "Bibida", "t": "Korean", "s": "Notting Hill Gate", "l": [], "c": false}, {"n": "Cay Tre Hoxton", "t": "Vietnamese", "s": "Old Street", "l": [], "c": false}, {"n": "Omotesando", "t": "Cafe", "s": "Oxford Circus", "l": [], "c": false}, {"n": "克拉玛依 Karamay", "t": "Chinese", "s": "Oxford Circus", "l": [], "c": false}, {"n": "Tenmaru", "t": "Japanese", "s": "Oxford Circus", "l": [], "c": false}, {"n": "Oma Coffee Roasters", "t": "Cafe", "s": "Oxford Circus", "l": [], "c": false}, {"n": "Treelogy specialty Coffee", "t": "Cafe", "s": "Paddington", "l": [], "c": false}, {"n": "漂亮 Pearl Liang", "t": "Chinese", "s": "Paddington", "l": [], "c": false}, {"n": "Bizzarro", "t": "Italian", "s": "Paddington", "l": [], "c": false}, {"n": "Zanchi Korean Restaurant", "t": "Korean", "s": "Paddington", "l": [], "c": false}, {"n": "御宝轩 Imperial Treasure", "t": "Chinese", "s": "Piccadilly Circus", "l": [], "c": false}, {"n": "唐茶苑 Yauatcha Soho", "t": "Chinese", "s": "Piccadilly Circus", "l": [], "c": false}, {"n": "Sushi Kyu", "t": "Japanese", "s": "Piccadilly Circus", "l": [], "c": false}, {"n": "Machiya", "t": "Japanese", "s": "Piccadilly Circus", "l": [], "c": false}, {"n": "Hachi Japanese BBQ Restaurant", "t": "Japanese", "s": "Piccadilly Circus", "l": [], "c": false}, {"n": "The Locals Chelsea", "t": "Cafe", "s": "Pimlico", "l": [], "c": false}, {"n": "Yi-Ban", "t": "Chinese", "s": "Royal Albert", "l": [], "c": false}, {"n": "The Observatory Coffee Shop", "t": "Cafe", "s": "Russell Square", "l": [], "c": false}, {"n": "Charco Charco", "t": "Japanese", "s": "Russell Square", "l": [], "c": false}, {"n": "YUE Kitchen", "t": "Chinese", "s": "Shoreditch High Street", "l": [], "c": false}, {"n": "Ice Cream Union", "t": "Dessert", "s": "Sloane Square", "l": [], "c": false}, {"n": "Hase-Ya", "t": "Japanese", "s": "South Ealing", "l": [], "c": false}, {"n": "The Hunter’s Moon", "t": "British", "s": "South Kensington", "l": [], "c": false}, {"n": "Hjem", "t": "Cafe", "s": "South Kensington", "l": [], "c": false}, {"n": "Stein’s Berlin", "t": "German", "s": "South Kensington", "l": [], "c": false}, {"n": "Carluccio’s", "t": "Italian", "s": "South Kensington", "l": [], "c": false}, {"n": "Al Dente", "t": "Italian", "s": "South Kensington", "l": [], "c": false}, {"n": "Dozo", "t": "Japanese", "s": "South Kensington", "l": [], "c": false}, {"n": "Daquise", "t": "Polish", "s": "South Kensington", "l": [], "c": false}, {"n": "Bosphorus Kebabs", "t": "Turkish", "s": "South Kensington", "l": [], "c": false}, {"n": "Mama Pho", "t": "Vietnamese", "s": "South Kensington", "l": [], "c": false}, {"n": "Go Viet", "t": "Vietnamese", "s": "South Kensington", "l": [], "c": false}, {"n": "深夜食堂 Late Night Kitchen", "t": "Chinese", "s": "South Quay", "l": [], "c": false}, {"n": "Su Noodles", "t": "Chinese", "s": "South Quay", "l": [], "c": false}, {"n": "Uoichi", "t": "Japanese", "s": "South Quay", "l": [], "c": false}, {"n": "和九丫 Glass Gardens", "t": "Chinese", "s": "Southwark", "l": [], "c": false}, {"n": "一汤一粉 Lin’s Restaurant and Bar", "t": "Chinese", "s": "Southwark", "l": [], "c": false}, {"n": "Nostos", "t": "Cafe", "s": "St James Park", "l": [], "c": false}, {"n": "Iris & June", "t": "Cafe", "s": "St James Park", "l": [], "c": false}, {"n": "Formative", "t": "Cafe", "s": "St James Park", "l": [], "c": false}, {"n": "60 Degrees", "t": "Cafe", "s": "St James Park", "l": [], "c": false}, {"n": "Maido Sushi", "t": "Japanese", "s": "St John's Wood", "l": [], "c": false}, {"n": "Rodina 2", "t": "Bulgarian", "s": "Stratford", "l": [], "c": false}, {"n": "Darkhorse Restaurant & Bar", "t": "British", "s": "Stratford International", "l": [], "c": false}, {"n": "Kokin", "t": "Japanese", "s": "Stratford International", "l": [], "c": false}, {"n": "青花钰兰州牛肉面 Noodle Nova", "t": "Chinese", "s": "Temple", "l": [], "c": false}, {"n": "大沪人家 Shanghai Family", "t": "Chinese", "s": "Tottenham Court Road", "l": [], "c": false}, {"n": "Thaicup", "t": "Thai", "s": "Tottenham Court Road", "l": [], "c": false}, {"n": "J7 Bar & Restaurant", "t": "Chinese", "s": "Vauxhall", "l": [], "c": false}, {"n": "Daebak", "t": "Korean", "s": "Vauxhall", "l": [], "c": false}, {"n": "Workshop", "t": "Cafe", "s": "Victoria", "l": [], "c": false}, {"n": "Pimlico Fresh", "t": "Cafe", "s": "Victoria", "l": [], "c": false}, {"n": "Koub", "t": "Cafe", "s": "Victoria", "l": [], "c": false}, {"n": "龙门客栈", "t": "Chinese", "s": "Victoria", "l": [], "c": false}, {"n": "小龙皇 Bamboo Basket", "t": "Chinese", "s": "Victoria", "l": [], "c": false}, {"n": "Morinoya", "t": "Japanese", "s": "Victoria", "l": [], "c": false}, {"n": "Lime Orange", "t": "Korean", "s": "Victoria", "l": [], "c": false}, {"n": "Seafresh", "t": "Seafood", "s": "Victoria", "l": [], "c": false}, {"n": "Calico", "t": "Cafe", "s": "Waterloo", "l": [], "c": false}, {"n": "Sagamiya", "t": "Japanese", "s": "Waterloo", "l": [], "c": false}, {"n": "Okan Southbank", "t": "Japanese", "s": "Waterloo", "l": [], "c": false}, {"n": "Jeux Jeux", "t": "Japanese", "s": "Waterloo", "l": [], "c": false}, {"n": "Donabe Hannah", "t": "Japanese", "s": "Waterloo", "l": [], "c": false}, {"n": "Preto", "t": "Brazilian", "s": "Multiple", "l": ["Victoria", "Leicester Square", "Bayswater", "Angel"], "c": false}, {"n": "WatchHouse", "t": "Cafe", "s": "Multiple", "l": ["Bond Street", "St John's Wood", "Marylebone", "Marble Arch", "Oxford Circus", "Clapham Junction", "Battersea Power Station", "Mansion House", "Leicester Square", "Temple", "Hampstead Heath", "Covent Garden", "Belsize Park", "Tower Hill", "Bermondsey", "Aldgate", "Aldgate East", "Chancery Lane", "Canary Wharf"], "c": false}, {"n": "Rosslyn Coffee", "t": "Cafe", "s": "Multiple", "l": ["Blackfriars", "Bank", "Monument", "Moorgate", "Liverpool Street", "Tower Hill"], "c": false}, {"n": "Kiss the Hippo", "t": "Cafe", "s": "Multiple", "l": ["Monument", "Liverpool Street", "Old Street", "Leicester Square", "Tottenham Court Road", "Oxford Circus", "South Kensington", "Putney Bridge", "Richmond"], "c": false}, {"n": "Half Cup", "t": "Cafe", "s": "Multiple", "l": ["Barbican", "King's Cross"], "c": false}, {"n": "Guillam Coffee House", "t": "Cafe", "s": "Multiple", "l": ["Gloucester Road", "Bayswater", "Notting Hill Gate", "Queensway", "Green Park"], "c": false}, {"n": "Eggslut", "t": "Cafe", "s": "Multiple", "l": ["Victoria", "Tottenham Court Road", "Ladbroke Grove", "Liverpool Street", "Shoreditch High Street", "Stratford International", "Canary Wharf"], "c": false}, {"n": "Caravan", "t": "Cafe", "s": "Multiple", "l": ["Monument", "King's Cross", "Great Portland Street", "London Bridge", "Farringdon", "Covent Garden"], "c": false}, {"n": "Monmouth", "t": "Cafe", "s": "Multiple", "l": ["London Bridge", "Covent Garden"], "c": false}, {"n": "韩记 Murger Han", "t": "Chinese", "s": "Multiple", "l": ["Monument", "Piccadilly Circus", "Euston", "Elephant & Castle"], "c": false}, {"n": "金满楼 Gold Mine", "t": "Chinese", "s": "Multiple", "l": ["Bayswater", "Leicester Square"], "c": false}, {"n": "皇朝会 Royal China Club", "t": "Chinese", "s": "Multiple", "l": [], "c": true}, {"n": "皇朝 Royal China", "t": "Chinese", "s": "Multiple", "l": ["Baker Street", "Leicester Square", "Canary Wharf"], "c": false}, {"n": "海底捞 Haidilao", "t": "Chinese", "s": "Multiple", "l": ["Piccadilly Circus", "North Greenwich"], "c": false}, {"n": "杨国福 YGF Yangguofu Malatang", "t": "Chinese", "s": "Multiple", "l": ["Leicester Square", "Hammersmith"], "c": false}, {"n": "快乐小羊 Happy Lamb", "t": "Chinese", "s": "Multiple", "l": ["Royal Oak", "Holborn"], "c": false}, {"n": "好朋友炸鸡 Ji the Chicken Shop", "t": "Chinese", "s": "Multiple", "l": ["Aldgate", "Leicester Square"], "c": false}, {"n": "刘小面 Liu Xiaomian", "t": "Chinese", "s": "Multiple", "l": ["Oxford Circus", "Charing Cross", "Regent's Park"], "c": false}, {"n": "三叔 Three Uncles", "t": "Chinese", "s": "Multiple", "l": ["Liverpool Street", "Blackfriars", "Camden Town", "Brixton"], "c": false}, {"n": "Mama Li", "t": "Chinese", "s": "Multiple", "l": ["Tower Hill", "Canary Wharf", "Moorgate"], "c": false}, {"n": "WA Cafe", "t": "Dessert", "s": "Multiple", "l": ["Aldgate East", "Bond Street", "Leicester Square", "Ealing Broadway"], "c": false}, {"n": "Tsujiri", "t": "Dessert", "s": "Multiple", "l": ["Leicester Square", "Stratford"], "c": false}, {"n": "Mille Patisserie", "t": "Dessert", "s": "Multiple", "l": ["Paddington", "Russell Square", "Blackwall"], "c": false}, {"n": "KOVA", "t": "Dessert", "s": "Multiple", "l": ["Leicester Square", "South Kensington", "Aldgate East", "Tottenham Court Road", "Battersea Power Station"], "c": false}, {"n": "Amorino", "t": "Dessert", "s": "Multiple", "l": [], "c": false}, {"n": "Wingstop", "t": "Fast Food", "s": "Multiple", "l": [], "c": false}, {"n": "Shake Shack", "t": "Fast Food", "s": "Multiple", "l": [], "c": false}, {"n": "Nandos", "t": "Fast Food", "s": "Multiple", "l": [], "c": false}, {"n": "Gazette", "t": "French", "s": "Multiple", "l": ["South Kensington", "Chancery Lane", "Farringdon", "Clapham Junction", "Putney", "Wandsworth Common"], "c": false}, {"n": "Munich Cricket Club", "t": "German", "s": "Multiple", "l": ["St James Park", "Tower Hill", "Canary Wharf"], "c": false}, {"n": "The Salad Project", "t": "Healthy", "s": "Multiple", "l": [], "c": false}, {"n": "Farmer J", "t": "Healthy", "s": "Multiple", "l": [], "c": false}, {"n": "Atis", "t": "Healthy", "s": "Multiple", "l": [], "c": false}, {"n": "Dishoom", "t": "Indian", "s": "Multiple", "l": ["High Street Kensington", "Canary Wharf", "Battersea Power Station", "Shoreditch High Street", "Covent Garden", "King's Cross", "Oxford Circus"], "c": false}, {"n": "San Carlo", "t": "Italian", "s": "Multiple", "l": ["Knightsbridge", "Piccadilly Circus"], "c": false}, {"n": "Pizza Union", "t": "Italian", "s": "Multiple", "l": ["Holborn", "King's Cross", "Aldgate East", "Hoxton"], "c": false}, {"n": "Padella", "t": "Italian", "s": "Multiple", "l": ["London Bridge", "Shoreditch High Street", "Oxford Circus"], "c": false}, {"n": "Lina Stores", "t": "Italian", "s": "Multiple", "l": [], "c": false}, {"n": "Emilia’s Crafted Pasta", "t": "Italian", "s": "Multiple", "l": ["Victoria", "Baker Street", "Tower Hill", "Aldgate East", "Canary Wharf"], "c": false}, {"n": "Bancone", "t": "Italian", "s": "Multiple", "l": ["Leicester Square", "Bank", "London Bridge", "High Street Kensington"], "c": false}, {"n": "Yakiniku Like", "t": "Japanese", "s": "Multiple", "l": ["Leicester Square", "Stratford"], "c": false}, {"n": "Marugame", "t": "Japanese", "s": "Multiple", "l": [], "c": false}, {"n": "Ippundo", "t": "Japanese", "s": "Multiple", "l": ["Goodge Street", "Canary Wharf", "Tottenham Court Road", "Embankment"], "c": false}, {"n": "Eat Tokyo", "t": "Japanese", "s": "Multiple", "l": [], "c": false}, {"n": "Cocoro", "t": "Japanese", "s": "Multiple", "l": ["Bond Street", "Tottenham Court Road", "Bayswater", "Highgate"], "c": false}, {"n": "CoCo Ichibanya", "t": "Japanese", "s": "Multiple", "l": ["Bond Street", "Leicester Square"], "c": false}, {"n": "Sticks n’ Sushi", "t": "Japanese & Norwegian", "s": "Multiple", "l": [], "c": false}, {"n": "YORI", "t": "Korean", "s": "Multiple", "l": [], "c": false}, {"n": "Sagye", "t": "Korean", "s": "Multiple", "l": ["Imperial Wharf", "Canary Wharf"], "c": false}, {"n": "Burger & Lobster", "t": "Seafood", "s": "Multiple", "l": [], "c": false}, {"n": "Macellaio RC", "t": "Steak", "s": "Multiple", "l": ["Piccadilly Circus", "South Kensington", "Farringdon"], "c": false}, {"n": "Hawksmoor", "t": "Steak", "s": "Multiple", "l": ["Leicester Square", "Piccadilly Circus", "Knightsbridge", "London Bridge", "King's Cross", "Shoreditch High Street", "Canary Wharf", "Bank"], "c": false}, {"n": "Goodman", "t": "Steak", "s": "Multiple", "l": ["Oxford Circus", "Barbican", "Bank"], "c": false}, {"n": "Flat Iron", "t": "Steak", "s": "Multiple", "l": [], "c": false}, {"n": "Blacklock", "t": "Steak", "s": "Multiple", "l": ["Oxford Circus", "Covent Garden", "Bank", "Shoreditch High Street", "Canary Wharf"], "c": false}, {"n": "茶宴 Chayan", "t": "Tea", "s": "Multiple", "l": ["Tottenham Court Road", "Tower Hill", "South Quay"], "c": false}, {"n": "喜茶 Heytea", "t": "Tea", "s": "Multiple", "l": [], "c": false}, {"n": "T4", "t": "Tea", "s": "Multiple", "l": [], "c": false}, {"n": "Jude’s Thai", "t": "Thai", "s": "Multiple", "l": [], "c": false}, {"n": "Busaba", "t": "Thai", "s": "Multiple", "l": [], "c": false}, {"n": "Ekachai", "t": "Thai & Singaporean", "s": "Multiple", "l": ["King's Cross", "Camden Town", "Wandsworth Town"], "c": false}, {"n": "Venchi", "t": "Dessert", "s": "Multiple", "l": [], "c": false}];
+const CUISINES = ["American", "Brazilian", "British", "Buffet", "Bulgarian", "Cafe", "Chinese", "Chinese & Japanese", "Dessert", "European", "Fast Food", "French", "German", "Healthy", "Indian", "Italian", "Japanese", "Japanese & Norwegian", "Korean", "Malaysian", "Polish", "Seafood", "Singaporean", "Steak", "Tea", "Thai", "Thai & Singaporean", "Turkish", "Vietnamese"];
+let Q = "";
+let activeCuisines = new Set();
+let allCollapsed = false;
+
+const listEl=document.getElementById('list'), qEl=document.getElementById('q'),
+      chipsEl=document.getElementById('chips'), emptyEl=document.getElementById('empty');
+
+function roundel(){return '<svg class="roundel" viewBox="0 0 40 40" aria-hidden="true">'
+  +'<circle cx="20" cy="20" r="14" fill="none" stroke="#c0392b" stroke-width="5"/>'
+  +'<rect x="3" y="17" width="34" height="6" fill="#22356f"/></svg>';}
+const chev='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" '
+  +'stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function hl(t){if(!Q)return esc(t);const i=t.toLowerCase().indexOf(Q.toLowerCase());
+  if(i<0)return esc(t);return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+Q.length))+'</mark>'+esc(t.slice(i+Q.length));}
+
+// cuisine chips
+const counts={}; DATA.forEach(d=>counts[d.t]=(counts[d.t]||0)+1);
+CUISINES.forEach(c=>{const el=document.createElement('span');el.className='chip';
+  el.innerHTML=esc(c)+'<span class="c">'+counts[c]+'</span>';
+  el.onclick=()=>{el.classList.toggle('on');
+    activeCuisines.has(c)?activeCuisines.delete(c):activeCuisines.add(c);render();};
+  chipsEl.appendChild(el);});
+document.getElementById('st-cuisines').textContent=CUISINES.length;
+
+// `inStation` = name of the station section we're in, or null for the Scattered recap
+function card(r,inStation){
+  let cls='card'+(r.c?' closed':'');
+  let name='<span class="cname">'+hl(r.n)+(r.c?'<span class="closedtag">now closed</span>':'')+'</span>';
+  let type='<span class="ctype">'+esc(r.t)+'</span>';
+  let extra='';
+  if(r.s==='Multiple'){
+    if(inStation){
+      const others=r.l.length-1;            // this station is one of them
+      if(others>0) extra='<span class="xnote">also at '+others+' other station'+(others>1?'s':'')+'</span>';
+    } else if(r.l.length){
+      const ql=Q.toLowerCase();
+      extra='<div class="locs">'+r.l.map(l=>'<span class="loc'+(ql&&l.toLowerCase().includes(ql)?' hit':'')+'">'+esc(l)+'</span>').join('')+'</div>';
+    } else if(!r.c){
+      extra='<span class="xnote">at multiple locations around London</span>';
+    }
+  }
+  return '<div class="'+cls+'">'+name+type+extra+'</div>';
+}
+
+function render(){
+  Q=qEl.value.trim(); const ql=Q.toLowerCase();
+  const match=r=>{
+    if(activeCuisines.size && !activeCuisines.has(r.t)) return false;
+    if(ql){const hay=(r.n+' '+r.t+' '+r.s+' '+r.l.join(' ')).toLowerCase();
+      if(!hay.includes(ql)) return false;}
+    return true;
+  };
+  const filtered=DATA.filter(match);
+  const sec={}; const scattered=[];
+  const ensure=s=>sec[s]||(sec[s]={here:[]});
+  filtered.forEach(r=>{
+    if(r.s==='Multiple'){scattered.push(r); r.l.forEach(loc=>ensure(loc).here.push(r));}
+    else ensure(r.s).here.push(r);
+  });
+  const names=Object.keys(sec).sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
+  let out='',liveStations=0;
+  names.forEach(s=>{
+    const here=sec[s].here; if(!here.length) return; liveStations++;
+    out+='<section class="station'+(allCollapsed?' collapsed':'')+'">'
+      +'<div class="shead">'+roundel()+'<span class="sname">'+esc(s)+'</span>'
+      +'<span class="scount">'+here.length+'</span>'+chev+'</div><div class="grid">';
+    here.forEach(r=>out+=card(r,s));
+    out+='</div></section>';
+  });
+  if(scattered.length){
+    out+='<section class="station'+(allCollapsed?' collapsed':'')+'">'
+      +'<div class="shead">'+roundel()
+      +'<span class="sname">Scattered across the city</span>'
+      +'<span class="scount">'+scattered.length+'</span>'+chev+'</div><div class="grid">';
+    scattered.forEach(r=>out+=card(r,null));
+    out+='</div></section>';
+  }
+  listEl.innerHTML=out;
+  emptyEl.style.display=filtered.length?'none':'block';
+  document.getElementById('st-places').textContent=filtered.length;
+  document.getElementById('st-stations').textContent=liveStations;
+  listEl.querySelectorAll('.shead').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('collapsed'));
+}
+
+document.getElementById('toggleAll').onclick=e=>{allCollapsed=!allCollapsed;
+  e.target.textContent=allCollapsed?'Expand all':'Collapse all';
+  listEl.querySelectorAll('.station').forEach(s=>s.classList.toggle('collapsed',allCollapsed));};
+document.getElementById('clear').onclick=()=>{qEl.value='';activeCuisines.clear();
+  chipsEl.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  allCollapsed=false;document.getElementById('toggleAll').textContent='Collapse all';render();};
+qEl.addEventListener('input',render);
+render();
+</script>
+</body>
+</html>
